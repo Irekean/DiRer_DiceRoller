@@ -7,6 +7,7 @@ from os import path
 from log import log
 from dice import normal_roll, roll_full_attack
 from prefix import PREFIX
+from initiative import roll_initiative
 
 # Log file, actually just used for console logging, not yet file logging
 
@@ -40,6 +41,8 @@ async def on_message(message):
     
         If something does not work please open an issue on GitHub: https://github.com/Irekean/Discord-Dice-Roller/issues
             """)
+        elif message.content.strip().lower().startswith(PREFIX + 'initiative'):
+            await message.channel.send(roll_initiative(message))
         elif message.content.strip().lower().startswith(PREFIX + 'rf '):
             await message.channel.send(roll_full_attack(message))
         elif message.content.strip().lower().startswith(PREFIX + 'r ') or message.content.strip().lower().startswith(
