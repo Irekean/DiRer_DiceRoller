@@ -39,7 +39,7 @@ async def on_message(message):
             - `""" + PREFIX + """rf` : roll a D&D/Pathfinder full attack! Use the format: `1d20+15/+10/+5` WORK IN PROGRESS
             - `""" + PREFIX + """git` : get the GitHub project link
     
-        If something does not work please open an issue on GitHub: https://github.com/Irekean/Discord-Dice-Roller/issues
+        If something does not work please open an issue on GitHub: https://github.com/Irekean/DiRer_DiceRoller/issues
             """)
         elif message.content.strip().lower().startswith(PREFIX + 'initiative'):
             await message.channel.send(roll_initiative(message))
@@ -49,7 +49,7 @@ async def on_message(message):
                 PREFIX + 'roll '):
             await message.channel.send(normal_roll(message))
         elif (message.content.lower().strip() + " ").startswith(PREFIX + "git "):
-            await message.channel.send("The bot code is on GitHub: https://github.com/Irekean/Discord-Dice-Roller")
+            await message.channel.send("The bot code is on GitHub: https://github.com/Irekean/DiRer_DiceRoller")
         elif message.author.id == 322449846336356363 and (
                 message.content.strip().lower().startswith(PREFIX + 'kill') or message.content.strip().lower().startswith(
             PREFIX + 'stop')):
