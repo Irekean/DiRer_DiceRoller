@@ -7,6 +7,8 @@ from os import path
 from log import log
 from dice import normal_roll, roll_full_attack
 from prefix import PREFIX
+from settings import get_value
+from admin import is_this_admin
 
 # Log file, actually just used for console logging, not yet file logging
 
@@ -38,17 +40,19 @@ async def on_message(message):
             - `""" + PREFIX + """rf` : roll a D&D/Pathfinder full attack! Use the format: `1d20+15/+10/+5` WORK IN PROGRESS
             - `""" + PREFIX + """git` : get the GitHub project link
     
-        If something does not work please open an issue on GitHub: https://github.com/Irekean/DiRer_DiceRoller/issues
-            """)
+        If something does not work please open an issue on GitHub: """ + get_value("CustomBotUpdates",
+                                                                                   "UpdateRepository") + """/issues""")
         elif message.content.strip().lower().startswith(PREFIX + 'rf '):
             await message.channel.send(roll_full_attack(message))
         elif message.content.strip().lower().startswith(PREFIX + 'r ') or message.content.strip().lower().startswith(
                 PREFIX + 'roll '):
             await message.channel.send(normal_roll(message))
         elif (message.content.lower().strip() + " ").startswith(PREFIX + "git "):
-            await message.channel.send("The bot code is on GitHub: https://github.com/Irekean/DiRer_DiceRoller")
-        elif message.author.id == 322449846336356363 and (
-                message.content.strip().lower().startswith(PREFIX + 'kill') or message.content.strip().lower().startswith(
+            await message.channel.send(
+                "The bot code is on GitHub: " + get_value("CustomBotUpdates", "UpdateRepository"))
+        elif is_this_admin(message.author.id) and (
+                message.content.strip().lower().startswith(
+                    PREFIX + 'kill') or message.content.strip().lower().startswith(
             PREFIX + 'stop')):
             await client.logout()
         elif message.content.strip().startswith(PREFIX):  # Always keep as last
@@ -58,9 +62,8 @@ async def on_message(message):
         raise
 
 
-# You need to put your token in a file named token.txt
-if path.exists("token.txt"):
-    bot_token = open("token.txt", "r")
-    client.run(bot_token.read())
-else:
-    raise FileNotFoundError("File token.txt not found. You need to create it and paste in it your bot token.")
+# Starting the bot requires its token
+try:
+    client.run(get_value("CustomBotSettings", "BotToken"))
+except:
+    log.log("Token not valid or not found in your conf.ini")
