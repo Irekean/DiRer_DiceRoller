@@ -5,7 +5,7 @@ import os.path
 from os import path
 
 from log import log
-from dice import normal_roll, roll_full_attack
+from dice import normal_roll, roll_full_attack, Dice
 from prefix import PREFIX
 from settings import get_value
 from admin import is_this_admin
@@ -46,7 +46,8 @@ async def on_message(message):
             await message.channel.send(roll_full_attack(message))
         elif message.content.strip().lower().startswith(PREFIX + 'r ') or message.content.strip().lower().startswith(
                 PREFIX + 'roll '):
-            await message.channel.send(normal_roll(message))
+            result = Dice(message).roll()
+            await message.channel.send(result)
         elif (message.content.lower().strip() + " ").startswith(PREFIX + "git "):
             await message.channel.send(
                 "The bot code is on GitHub: " + get_value("CustomBotUpdates", "UpdateRepository"))
