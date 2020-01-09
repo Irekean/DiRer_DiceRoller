@@ -3,6 +3,17 @@ import re
 
 from prefix import PREFIX
 
+
+class Dice:
+
+    def __init__(self, dices_roll):
+        self.dices_roll = dices_roll
+
+    def roll(self):
+        self.__normal_roll__()
+
+    def __normal_roll__(self):
+        normal_roll(self.dices_roll)
 #
 # Used to check if the input string is valid for a full attack:
 FULL_ATTACK_WITH_TEXT = r'[0-9]{1,2}d[0-9]{1,2}([+,-][0-9]{1,2})(/[+,-][0-9]{1,2})+[a-z]+'
@@ -54,7 +65,9 @@ def normal_roll(message):
     #
     text_included = ""
     text_included = message.content.replace("/r ", "").replace("/roll ", "")
-    message_content = message.content.replace(PREFIX + "r ", "/r +").replace(PREFIX + "roll ", "/roll +").replace("+d", "+1d").replace("-d", "-1d").strip()
+    message_content = message.content.replace(PREFIX + "r ", "/r +").replace(PREFIX + "roll ", "/roll +").replace("+d",
+                                                                                                                  "+1d").replace(
+        "-d", "-1d").strip()
     pattern = re.compile(VALIDATE_ROLL_TOO_MANY_DICE)
     pattern.match(message_content)
     if pattern.search(message_content) is not None:
