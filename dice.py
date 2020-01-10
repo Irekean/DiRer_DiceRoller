@@ -5,7 +5,7 @@ from prefix import PREFIX
 
 VALIDATE_ROLL_TOO_MANY_DICE = r'([0-9]{5,5}d)'
 VALIDATE_ROLL_DICE_TOO_BIG = r'(d[0-9]{5,5})'
-NORMAL_ROLL = r'([+-]\d{1,5}d\d{1,5}|[+-]\d+(?:[^d]))'
+NORMAL_ROLL = r'([+-]\d{1,5}d\d{1,5}|[+-]\d+)'
 
 
 class Dice:
@@ -24,9 +24,9 @@ class Dice:
         if are_too_big:
             return are_too_big
 
-        if self.mode is "r" or self.mode is "roll":
+        if self.mode == "r" or self.mode == "roll":
             return self.__normal_roll__()
-        elif self.mode is "rf":
+        elif self.mode == "rf":
             return self.__full_attack__()
 
     def __normal_roll__(self):
@@ -40,9 +40,10 @@ class Dice:
             return "Wat"
 
         ret_message = "{} = **{}**".format(self.final_return, self.final_result)
-        if self.final_return[0] == "+":
-            return self.tag_user + " rolled: " + self.message_text + "\n" + self.final_return[1:]
-        return self.final_return
+        if ret_message[0] == "+":
+            return self.tag_user + " rolled: " + self.message_text + "\n" + ret_message[1:]
+        else:
+            return self.tag_user + " rolled: " + self.message_text + "\n" + ret_message
 
     def __evaluate_roll__(self, match):
         if "d" in match.group():

@@ -55,7 +55,7 @@ class Bot:
             return "Need help? Try with `" + PREFIX + "help` or `" + PREFIX + "usage`"
 
     def __is_command__(self, command):
-        return self.message.lower().startswith(PREFIX + command)
+        return self.content.lower().startswith(PREFIX + command)
 
     def __update__(self):
         if len(self.content.split(" ")) == 1:
@@ -82,7 +82,7 @@ class Bot:
             system = platform.system()
             if system == "Windows":
                 output_process = subprocess.check_output("pip install -r requirements.txt && python main.py")
-                if output_process is 0:
+                if output_process == 0:
                     sys.exit(0)
             elif system == "Linux" or system == "Darwin":
                 output_process = subprocess.check_output("pip3 install -r requirements.txt && python3 main.py")
