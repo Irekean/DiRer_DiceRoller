@@ -3,40 +3,82 @@ import re
 
 from prefix import PREFIX
 
+VALIDATE_ROLL_TOO_MANY_DICE = r'([0-9]{5,5}d)'
+VALIDATE_ROLL_DICE_TOO_BIG = r'(d[0-9]{5,5})'
+NORMAL_ROLL = r'([+-]\d{1,5}d\d{1,5}|[+-]\d+(?:[^d]))'
+
 
 class Dice:
-
-    def __init__(self, dices_to_roll):
-        self.dices_to_roll = dices_to_roll
+    def __init__(self, message, mode):
+        self.message = message
+        self.mode = mode
+        clean_text = self.message.content.replace(PREFIX + mode + " ", "+")
+        self.clean_text = clean_text.replace("+d", "+1d").replace("-d", "-1d").strip()
+        self.message_text = self.clean_text[self.clean_text.find(" ") + 1:].strip()
+        self.tag_user = self.message.author.mention
+        self.final_return = ""
+        self.final_result = 0
 
     def roll(self):
-        self.__normal_roll__()
+        are_too_big = self.__are_dices_too_big__()
+        if are_too_big:
+            return are_too_big
+
+        if self.mode is "r" or self.mode is "roll":
+            return self.__normal_roll__()
+        elif self.mode is "rf":
+            return self.__full_attack__()
 
     def __normal_roll__(self):
-        normal_roll(self.dices_to_roll)
+        match_iterator = re.finditer(NORMAL_ROLL, self.clean_text)
+        self.final_return = ""
+        self.final_result = 0
+        for matchNum, match in enumerate(match_iterator, start=1):
+            self.__evaluate_roll__(match)
+
+        if self.final_return == "":
+            return "Wat"
+
+        ret_message = "{} = **{}**".format(self.final_return, self.final_result)
+        if self.final_return[0] == "+":
+            return self.tag_user + " rolled: " + self.message_text + "\n" + self.final_return[1:]
+        return self.final_return
+
+    def __evaluate_roll__(self, match):
+        if "d" in match.group():
+            results = roll_dices(match.group().strip())
+            self.final_return += results
+            self.final_result = self.final_result + eval(results)
+        else:
+            self.final_result = self.final_result + eval(match.group().strip())
+            self.final_return += match.group().strip()
+
+    def __full_attack__(self):
+        roll_full_attack(self.clean_text)
+
+    def __are_dices_too_big__(self):
+        pattern = re.compile(VALIDATE_ROLL_TOO_MANY_DICE)
+        pattern.match(self.clean_text)
+        if pattern.search(self.clean_text) is not None:
+            return "You can't roll more than 9999 dice"
+        pattern = re.compile(VALIDATE_ROLL_DICE_TOO_BIG)
+        pattern.match(self.clean_text)
+        if pattern.search(self.clean_text) is not None:
+            return "You can't roll dice with more than 9999 faces"
 
 
 # Used to check if the input string is valid for a full attack:
 FULL_ATTACK_WITH_TEXT = r'[0-9]{1,2}d[0-9]{1,2}([+,-][0-9]{1,2})(/[+,-][0-9]{1,2})+[a-z]+'
 FULL_ATTACK_WITHOUT_TEXT = r'[0-9]{1,2}d[0-9]{1,2}([+,-][0-9]{1,2})(/[+,-][0-9]{1,2})+'
-#
-# Normal roll matcher:
-NORMAL_ROLL = r'([+-]\d{1,3}d\d{1,3}|[+-]\d{1,3})'
-#
-# Check if someone is trying to roll more than 2 digit number
-VALIDATE_ROLL_TOO_MANY_DICE = r'([0-9]{3,3}d)'
-VALIDATE_ROLL_DICE_TOO_BIG = r'(d[0-9]{4,4})'
 
 
 def roll_dices(dice):  # Accepts a *d* value where an * is a number
     results = []
     sign = check_sign(dice[0])
     rolls = dice.replace("-", "").replace("+", "").split('d')
-    # print(rolls)
     for number_of_roll in range(0, int(rolls[0])):
         random.seed()
         results.append(random.randint(1, int(rolls[1])))
-    # print(results)
     ret = ""
     for i in results:
         ret = "{}+{}".format(ret, i)
@@ -58,47 +100,3 @@ def roll_full_attack(message):
         return "Still working on it"
     else:
         return "Incorrect input, if you need help try with: `" + PREFIX + "help` or `" + PREFIX + "usage`"
-
-
-def normal_roll(message):
-    #
-    # Checking if there are too many dice or dices are too big
-    #
-    text_included = ""
-    text_included = message.content.replace("/r ", "").replace("/roll ", "")
-    message_content = message.content.replace(PREFIX + "r ", "/r +").replace(PREFIX + "roll ", "/roll +").replace("+d",
-                                                                                                                  "+1d").replace(
-        "-d", "-1d").strip()
-    pattern = re.compile(VALIDATE_ROLL_TOO_MANY_DICE)
-    pattern.match(message_content)
-    if pattern.search(message_content) is not None:
-        return "You can't roll more than 99 dice"
-    pattern = re.compile(VALIDATE_ROLL_DICE_TOO_BIG)
-    pattern.match(message_content)
-    a = pattern.search(message_content)
-    if pattern.search(message_content) is not None:
-        return "You can't roll dice with more than 999 faces"
-    #
-    # Actual Rolling:
-    #
-    to_be_splitted = message_content.lower().split(" ")
-    roll = to_be_splitted[1]
-    mtch_iterator = re.finditer(NORMAL_ROLL, roll)
-    final_return = ""
-    int_return = 0
-    for matchNum, match in enumerate(mtch_iterator, start=1):
-        # print(match)
-        if "d" in match.group():
-            results = roll_dices(match.group().strip())
-            final_return += results
-            int_return = int_return + eval(results)
-        else:
-            int_return = int_return + eval(match.group().strip())
-            final_return += match.group().strip()
-    if final_return == "":
-        return message_content.replace(PREFIX + "r", "").replace(" ", "").strip()
-
-    final_return = "{} = **{}**".format(final_return, int_return)
-    if final_return[0] == "+":
-        return message.author.mention + " rolled: " + text_included + "\n" + final_return[1:]
-    return final_return

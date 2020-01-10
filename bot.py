@@ -1,9 +1,9 @@
-import platform
+import logging
 import os
-import sys
+import platform
 import subprocess
 from subprocess import CalledProcessError
-import logging
+import sys
 
 from dice import roll_full_attack, Dice
 from prefix import PREFIX
@@ -13,7 +13,7 @@ from admin import is_this_admin
 
 def __run_command__(command):
     value = os.system(command)
-    if value is not 0:
+    if value != 0:
         raise RuntimeError("Error code " + str(value))
     else:
         return True
@@ -29,7 +29,7 @@ class Bot:
     def get_response(self):
         if self.admin:
             if self.__is_command__("kill") or self.__is_command__("stop"):
-                await self.client.logout()
+                self.client.logout()
                 return None
             elif self.__is_command__("update"):
                 return self.__update__()
@@ -43,13 +43,15 @@ class Bot:
     If something does not work please open an issue on GitHub: """ + get_value("CustomBotUpdates",
                                                                                "CodeRepository") + """/issues"""
         elif self.__is_command__("rf "):
-            return roll_full_attack(self.message)
-        elif self.__is_command__("r ") or self.__is_command__("roll "):
-            return Dice(self.message).roll()
+            return Dice(self.message, "rf").roll()
+        elif self.__is_command__("r "):
+            return Dice(self.message, "r").roll()
+        elif self.__is_command__("roll "):
+            return Dice(self.message, "roll").roll()
         elif self.__is_command__("git"):
             return "The bot code is on GitHub: " + get_value("CustomBotUpdates", "CodeRepository")
         elif self.__is_command__(""):
-            # Keep as last
+            # Keep it at last
             return "Need help? Try with `" + PREFIX + "help` or `" + PREFIX + "usage`"
 
     def __is_command__(self, command):
@@ -78,13 +80,14 @@ class Bot:
         output_process = None
         try:
             system = platform.system()
-            if system is "Windows":
+            if system == "Windows":
                 output_process = subprocess.check_output("pip install -r requirements.txt && python main.py")
                 if output_process is 0:
                     sys.exit(0)
-            elif system is "Linux" or system is "Darwin":
+            elif system == "Linux" or system == "Darwin":
                 output_process = subprocess.check_output("pip3 install -r requirements.txt && python3 main.py")
         except CalledProcessError as err:
             logging.error(str(err) + " Output code: " + output_process)
             self.client.run()
             return "Error while trying to restart, go check the log."
+        return output_process

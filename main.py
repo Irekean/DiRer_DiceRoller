@@ -1,4 +1,3 @@
-import sys
 import logging
 import discord
 
@@ -9,15 +8,15 @@ from settings import get_value
 client = discord.Client()
 
 # Starting the bot requires its token
-try:
-    client.run(get_value("CustomBotSettings", "BotToken"))
-except:
-    logging.error("Token not valid or not found in your conf.ini")
-    sys.exit(1)
-
+#try:
+client.run(get_value("CustomBotSettings", "BotToken"))
+# except KeyError as err:
+#     logging.error(str(err))
+#     sys.exit(1)
 
 @client.event
 async def on_ready():
+    print("I am up")
     logging.info("The bot is up and running!")
 
 
@@ -28,5 +27,5 @@ async def on_message(message):
         msg = bot.get_response()
         if msg is not None:
             message.channel.send(msg)
-    except:
-        logging.error("Unexpected error: ", sys.exc_info()[0])
+    except Exception as err:
+        logging.error("Unexpected error: " + str(err))
