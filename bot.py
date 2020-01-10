@@ -26,13 +26,14 @@ class Bot:
         self.content = message.content.strip()
         self.admin = is_this_admin(message.author.id)
 
-    def get_response(self):
+    async def get_response(self):
         if self.admin:
             if self.__is_command__("kill") or self.__is_command__("stop"):
                 self.client.logout()
                 return None
             elif self.__is_command__("update"):
-                return self.__update__()
+                await self.__update__()
+                return None
 
         if self.__is_command__("usage") or self.__is_command__("help"):
             return """Hi there, you can find the working functionality:
@@ -57,7 +58,7 @@ class Bot:
     def __is_command__(self, command):
         return self.content.lower().startswith(PREFIX + command)
 
-    def __update__(self):
+    async def __update__(self):
         if len(self.content.split(" ")) == 1:
             branch = get_value("CustomBotUpdates", "UpdateBranch")
         else:
@@ -70,13 +71,13 @@ class Bot:
             last_command_error = "Could not find the branch " + branch + "."
             __run_command__("git checkout " + branch)
             last_command_error = "Could not update."
-            __run_command__("git update")
+            __run_command__("git pull")
         except Exception as e:
             error = last_command_error + " " + str(e)
             logging.error(error)
             return error
 
-        self.client.logout()
+        await self.client.logout()
         output_process = None
         try:
             system = platform.system()

@@ -15,7 +15,7 @@ def get_admin_list():
 def is_this_admin(possible_admin):
     global admin_list
     __setup()
-    return possible_admin in admin_list
+    return str(possible_admin) in admin_list
 
 
 def __setup():

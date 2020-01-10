@@ -18,7 +18,7 @@ async def on_ready():
 async def on_message(message):
     #try:
     bot = Bot(client, message)
-    msg = bot.get_response()
+    msg = await bot.get_response()
     if msg is not None:
         await message.channel.send(msg)
     #except Exception as err:
