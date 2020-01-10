@@ -6,15 +6,16 @@ from prefix import PREFIX
 
 class Dice:
 
-    def __init__(self, dices_roll):
-        self.dices_roll = dices_roll
+    def __init__(self, dices_to_roll):
+        self.dices_to_roll = dices_to_roll
 
     def roll(self):
         self.__normal_roll__()
 
     def __normal_roll__(self):
-        normal_roll(self.dices_roll)
-#
+        normal_roll(self.dices_to_roll)
+
+
 # Used to check if the input string is valid for a full attack:
 FULL_ATTACK_WITH_TEXT = r'[0-9]{1,2}d[0-9]{1,2}([+,-][0-9]{1,2})(/[+,-][0-9]{1,2})+[a-z]+'
 FULL_ATTACK_WITHOUT_TEXT = r'[0-9]{1,2}d[0-9]{1,2}([+,-][0-9]{1,2})(/[+,-][0-9]{1,2})+'
@@ -83,7 +84,6 @@ def normal_roll(message):
     to_be_splitted = message_content.lower().split(" ")
     roll = to_be_splitted[1]
     mtch_iterator = re.finditer(NORMAL_ROLL, roll)
-    # print(mtch_iterator)
     final_return = ""
     int_return = 0
     for matchNum, match in enumerate(mtch_iterator, start=1):
