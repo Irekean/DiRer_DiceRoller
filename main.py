@@ -2,9 +2,8 @@ import sys
 import logging
 import discord
 
-from bot import Bot, get_response
+from bot import Bot
 from settings import get_value
-from admin import is_this_admin
 
 # Initializing the discord bot:
 client = discord.Client()
