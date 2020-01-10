@@ -29,7 +29,3 @@ def __setup():
 def __populate_list():
     admin_raw = get_value("DEFAULT", "Admins")
     return admin_raw.replace(" ", "").split(",")
-
-class Admin:
-    def __init__(self, client, message):
-        pass
