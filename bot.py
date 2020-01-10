@@ -81,7 +81,7 @@ class Bot:
             if system is "Windows":
                 output_process = subprocess.check_output("pip install -r requirements.txt && python main.py")
                 if output_process is 0:
-                    sys.exit(0);
+                    sys.exit(0)
             elif system is "Linux" or system is "Darwin":
                 output_process = subprocess.check_output("pip3 install -r requirements.txt && python3 main.py")
         except CalledProcessError as err:
