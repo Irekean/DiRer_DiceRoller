@@ -77,18 +77,23 @@ class Bot:
             logging.error(error)
             return error
 
-        await self.client.logout()
-        output_process = None
+        return_code = None
         try:
             system = platform.system()
             if system == "Windows":
-                output_process = subprocess.check_output("pip install -r requirements.txt && python main.py")
-                if output_process == 0:
-                    sys.exit(0)
+                child = subprocess.Popen("pip install -r requirements.txt", stdout=subprocess.PIPE)
+                streamdata = child.communicate()[0]
+                return_code = child.returncode
+                if return_code == 0:
+                    child = subprocess.Popen("python main.py", stdout=subprocess.PIPE)
+                    streamdata = child.communicate()[0]
+                    return_code = child.returncode
+                    if return_code == 0:
+                        await self.client.logout()
+                        sys.exit(0)
             elif system == "Linux" or system == "Darwin":
-                output_process = subprocess.check_output("pip3 install -r requirements.txt && python3 main.py")
+                return_code = subprocess.check_output("pip3 install -r requirements.txt && python3 main.py")
         except CalledProcessError as err:
-            logging.error(str(err) + " Output code: " + output_process)
-            self.client.run()
+            logging.error(str(err) + " Output code: " + return_code)
             return "Error while trying to restart, go check the log."
-        return output_process
+        return return_code
