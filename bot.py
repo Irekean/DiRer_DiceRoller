@@ -1,14 +1,14 @@
 import logging
 import os
 import platform
-import subprocess
 from subprocess import CalledProcessError
 import sys
 
-from dice import roll_full_attack, Dice
+from dice import Dice
 from prefix import PREFIX
 from settings import get_value
 from admin import is_this_admin
+from default_messagges import Messages
 
 
 def __run_command__(command):
@@ -27,6 +27,7 @@ class Bot:
         self.admin = is_this_admin(message.author.id)
 
     async def get_response(self):
+        default_message = Messages()
         if self.admin:
             if self.__is_command__("kill") or self.__is_command__("stop"):
                 self.client.logout()
@@ -36,13 +37,7 @@ class Bot:
                 return None
 
         if self.__is_command__("usage") or self.__is_command__("help"):
-            return """Hi there, you can find the working functionality:
-        - `""" + PREFIX + """r` : roll some dices using the format: `1d20+10`
-        - `""" + PREFIX + """rf` : roll a D&D/Pathfinder full attack! Use the format: `1d20+15/+10/+5` WORK IN PROGRESS
-        - `""" + PREFIX + """git` : get the GitHub project link
-
-    If something does not work please open an issue on GitHub: """ + get_value("CustomBotUpdates",
-                                                                               "CodeRepository") + """/issues"""
+            return default_message.get_help()
         elif self.__is_command__("rf "):
             return Dice(self.message, "rf").roll()
         elif self.__is_command__("r "):
@@ -50,10 +45,10 @@ class Bot:
         elif self.__is_command__("roll "):
             return Dice(self.message, "roll").roll()
         elif self.__is_command__("git"):
-            return "The bot code is on GitHub: " + get_value("CustomBotUpdates", "CodeRepository")
+            return default_message.get_code()
         elif self.__is_command__(""):
             # Keep it at last
-            return "Need help? Try with `" + PREFIX + "help` or `" + PREFIX + "usage`"
+            return default_message.get_code()
 
     def __is_command__(self, command):
         return self.content.lower().startswith(PREFIX + command)
@@ -77,22 +72,19 @@ class Bot:
             logging.error(error)
             return error
 
-        return_code = None
+        return_code = ""
         try:
             system = platform.system()
-            if system == "Windows":
-                child = subprocess.Popen("pip install -r requirements.txt", stdout=subprocess.PIPE)
-                streamdata = child.communicate()[0]
-                return_code = child.returncode
-                if return_code == 0:
-                    child = subprocess.Popen("python main.py", stdout=subprocess.PIPE)
-                    streamdata = child.communicate()[0]
-                    return_code = child.returncode
-                    if return_code == 0:
-                        await self.client.logout()
-                        sys.exit(0)
-            elif system == "Linux" or system == "Darwin":
-                return_code = subprocess.check_output("pip3 install -r requirements.txt && python3 main.py")
+            if system == "Windows" or system == "Darwin":
+                return "Could not update the bot automatically if hosted on a " + system + " system."
+            elif system == "Linux":
+                pid = os.fork()
+                if pid:
+                    self.client.logout()
+                    sys.exit(0)
+                else:
+                    os.system("pip3 install -r requirements.txt")
+                    os.system("python3 main.py")
         except CalledProcessError as err:
             logging.error(str(err) + " Output code: " + return_code)
             return "Error while trying to restart, go check the log."
