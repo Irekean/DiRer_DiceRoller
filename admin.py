@@ -27,5 +27,5 @@ def __setup():
 
 
 def __populate_list():
-    admin_raw = get_value("DEFAULT", "Admins")
+    admin_raw = get_value("CustomBotSettings", "Admins")
     return admin_raw.replace(" ", "").split(",")
