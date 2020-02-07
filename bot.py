@@ -75,8 +75,8 @@ class Bot:
         return_code = ""
         try:
             system = platform.system()
-            if system == "Windows" or system == "Darwin":
-                return "Could not update the bot automatically if hosted on a " + system + " system."
+            if system == "Darwin":
+                return "Could not update the bot automatically if hosted on a Mac system."
             elif system == "Linux":
                 pid = os.fork()
                 if pid:
@@ -85,6 +85,8 @@ class Bot:
                 else:
                     os.system("pip3 install -r requirements.txt")
                     os.system("python3 main.py")
+            elif system == "Windows":
+                pass
         except CalledProcessError as err:
             logging.error(str(err) + " Output code: " + return_code)
             return "Error while trying to restart, go check the log."
