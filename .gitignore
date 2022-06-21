@@ -1,6 +1,9 @@
 # Secret Token key for the discord bot
 token.txt
 
+# The local db with the GM of each channel
+db.json
+
 # Folder where the data are stored
 data/**
 

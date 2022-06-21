@@ -53,8 +53,9 @@ def normal_roll(message):
     # Checking if there are too many dice or dices are too big
     #
     text_included = ""
-    text_included = message.content.replace("/r ", "").replace("/roll ", "")
+    text_included = message.content.replace(PREFIX+"r ", "").replace(PREFIX+"roll ", "").replace(PREFIX+"gmroll ", "").replace(PREFIX+"gr ", "")
     message_content = message.content.replace(PREFIX + "r ", "/r +").replace(PREFIX + "roll ", "/roll +").replace("+d", "+1d").replace("-d", "-1d").strip()
+    message_content = message_content.replace(PREFIX + "gmroll ", "/gmroll +").replace(PREFIX + "gr ", "/gr +")
     pattern = re.compile(VALIDATE_ROLL_TOO_MANY_DICE)
     pattern.match(message_content)
     if pattern.search(message_content) is not None:
