@@ -57,7 +57,7 @@ async def on_message(message):
             gms = Query()
             db.remove(gms.channel == message.channel.id)
             db.insert({'channel': message.channel.id, 'gm': message.author.id})
-            await message.channel.send(message.author.display_name + " is the new GM of the channel")
+            await message.channel.send("<@" + str(message.author.id) + "> is the new GM of the channel")
         elif msg.startswith(PREFIX + 'gmroll ') or msg.startswith(PREFIX + 'gr '):
             gms = Query()
             gm = db.search(gms.channel == message.channel.id)
@@ -65,7 +65,7 @@ async def on_message(message):
                 #user = await client.fetch_user(322449846336356363)
                 user = await client.fetch_user(int(gm[0]['gm']))
                 await user.send(normal_roll(message))
-                await message.channel.send("Message sent to the GM")
+                await message.channel.send("Message sent to the GM <@" + str(gm[0]['gm']) + ">")
             else:
                 await message.channel.send("There is not GM setted in this channel. The GM should use the command " + PREFIX + "set gm")
         elif (message.content.lower().strip() + " ").startswith(PREFIX + "git "):
@@ -83,6 +83,7 @@ async def on_message(message):
 # You need to put your token in a file named token.txt
 if path.exists("token.txt"):
     bot_token = open("token.txt", "r")
+    log("Trying to connect to the discord servers...")
     client.run(bot_token.read())
 else:
     raise FileNotFoundError("File token.txt not found. You need to create it and paste in it your bot token.")
